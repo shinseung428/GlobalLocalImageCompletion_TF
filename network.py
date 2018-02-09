@@ -94,17 +94,11 @@ class network():
         self.loss = self.recon_loss + self.alpha*self.g_loss
 
     # completion network 
-    def completion_net(self, X_r, name="generator"):
-        input_shape = X_r.get_shape().as_list()
+    def completion_net(self, input, name="generator"):
+        input_shape = input.get_shape().as_list()
         nets = []
         with tf.variable_scope(name) as scope:
-
-            #encode
-            # conv1 = tf.contrib.layers.conv2d(X_r, 64, 5, 1,
-            #                          padding="SAME",
-            #                          activation_fn=None,
-            #                          scope="conv1")
-            conv= conv2d(X_r, 64,
+            conv= conv2d(input, 64,
                           kernel=5,
                           stride=1,
                           padding="SAME",
