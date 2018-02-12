@@ -1,4 +1,5 @@
 import tensorflow as tf
+import numpy as np
 from config import *
 from network import *
 
@@ -8,7 +9,7 @@ ix,iy = -1,-1
 color = (255,255,255)
 size = 10
 
-def erase_img(img_path):
+def erase_img(args, img):
 
     # mouse callback function
     def erase_rect(event,x,y,flags,param):
@@ -19,22 +20,26 @@ def erase_img(img_path):
             if drawing == True:
                 # cv2.circle(img,(x,y),10,(255,255,255),-1)
                 cv2.rectangle(img,(x-size,y-size),(x+size,y+size),color,-1)
+                cv2.rectangle(mask,(x-size,y-size),(x+size,y+size),color,-1)
             
         elif event == cv2.EVENT_MOUSEMOVE:
             if drawing == True:
                 # cv2.circle(img,(x,y),10,(255,255,255),-1)
                 cv2.rectangle(img,(x-size,y-size),(x+size,y+size),color,-1)
+                cv2.rectangle(mask,(x-size,y-size),(x+size,y+size),color,-1)
         elif event == cv2.EVENT_LBUTTONUP:
             drawing = False
             # cv2.circle(img,(x,y),10,(255,255,255),-1)
             cv2.rectangle(img,(x-size,y-size),(x+size,y+size),color,-1)
+            cv2.rectangle(mask,(x-size,y-size),(x+size,y+size),color,-1)
 
 
-    img = cv2.imread(img_path)
     cv2.namedWindow('image')
     cv2.setMouseCallback('image',erase_rect)
+    #cv2.namedWindow('mask')
+    cv2.setMouseCallback('mask',erase_rect)
     mask = np.zeros(img.shape)
-    mask[img==255] = 1
+    
 
     while(1):
         cv2.imshow('image',img)
@@ -42,42 +47,60 @@ def erase_img(img_path):
         if k == 27:
             break
 
-    print mask.shape
-    cv2.imshow("mask",mask)
+    test_img = cv2.resize(img, (args.input_height, args.input_width))/127.5 - 1
+    test_mask = cv2.resize(mask, (args.input_height, args.input_width))/255.0
+    #fill mask region to 1
+    test_img = (test_img * (1-test_mask)) + test_mask
+
+    cv2.destroyAllWindows()
+    return np.tile(test_img[np.newaxis,...], [args.batch_size,1,1,1]), np.tile(test_mask[np.newaxis,...], [args.batch_size,1,1,1])
+
+
+
+
+def test(args, sess, model):
+    #saver  
+    saver = tf.train.Saver()        
+    last_ckpt = tf.train.latest_checkpoint(args.checkpoints_path)
+    saver.restore(sess, last_ckpt)
+    ckpt_name = str(last_ckpt)
+    print "Loaded model file from " + ckpt_name
+    
+    img = cv2.imread(args.img_path)
+
+    orig_test = cv2.resize(img, (args.input_height, args.input_width))/127.5 - 1
+    orig_test = np.tile(orig_test[np.newaxis,...],[args.batch_size,1,1,1])
+
+    orig_w, orig_h = img.shape[0], img.shape[1]
+    test_img, mask = erase_img(args, img)
+
+    print "Testing ..."
+    res_img = sess.run(model.test_res_imgs, feed_dict={model.single_orig:orig_test,
+                                                       model.single_test:test_img,
+                                                       model.single_mask:mask})
+
+    orig = cv2.resize((orig_test[0]+1)/2, (orig_h, orig_w))
+    res = cv2.resize((res_img[0]+1)/2, (orig_h, orig_w))
+
+    #res = cv2.cvtColor(res, cv2.COLOR_RGB2BGR)
+
+    cv2.imshow("orig", orig)
+    cv2.imshow("result", res)
     cv2.waitKey()
 
-    return img, mask
+    print("Done.")
 
 
-test_img = erase_img(args.img_path)
-
-# def test(args, sess, model):
-#     #saver
-#     saver = tf.train.Saver()        
-#     last_ckpt = tf.train.latest_checkpoint(args.checkpoints_path)
-#     saver.restore(sess, last_ckpt)
-#     ckpt_name = str(last_ckpt)
-#     print "Loaded model file from " + ckpt_name
+def main(_):
+    run_config = tf.ConfigProto()
+    run_config.gpu_options.allow_growth = True
     
-    
+    with tf.Session(config=run_config) as sess:
+        model = network(args)
 
-#     res_img = sess.run(model.test_res_imgs)
+        print 'Start Testing...'
+        test(args, sess, model)
 
-#     cv2.imshow("result", res_img)
-
-#     print("Done.")
-
-
-# def main(_):
-#     run_config = tf.ConfigProto()
-#     run_config.gpu_options.allow_growth = True
-    
-#     with tf.Session(config=run_config) as sess:
-#         model = network(args)
-
-#         print 'Start Testing...'
-#         test(args, sess, model)
-
-# main(args)
+main(args)
 
 #Still Working....

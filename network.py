@@ -20,6 +20,10 @@ class network():
         self.real_img, self.perturbed_img, self.mask, self.coord, self.pads, self.data_count = load_train_data(args)
         self.orig_img, self.test_img, self.test_mask, self.test_data_count = load_test_data(args)
 
+        self.single_orig = tf.placeholder(tf.float32, (args.batch_size, args.input_height, args.input_width, 3))
+        self.single_test = tf.placeholder(tf.float32, (args.batch_size, args.input_height, args.input_width, 3))
+        self.single_mask = tf.placeholder(tf.float32, (args.batch_size, args.input_height, args.input_width, 3))
+
         self.build_model()
         self.build_loss()
 
@@ -41,8 +45,8 @@ class network():
         self.recon_img, self.g_nets = self.completion_net(self.perturbed_img, name="completion_net")
         self.recon_img = (1-self.mask)*self.real_img + self.mask*self.recon_img
 
-        self.test_res_imgs, _ = self.completion_net(self.test_img, name="completion_net", reuse=True)
-        self.test_res_imgs = (1-self.test_mask)*self.orig_img + self.test_mask*self.test_res_imgs
+        self.test_res_imgs, _ = self.completion_net(self.single_test, name="completion_net", reuse=True)
+        self.test_res_imgs = (1-self.single_mask)*self.single_orig + self.single_mask*self.test_res_imgs
 
         self.r_local_imgs = []
         self.g_local_imgs = [] 
