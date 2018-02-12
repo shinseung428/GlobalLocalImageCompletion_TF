@@ -69,7 +69,7 @@ def train(args, sess, model):
             # Discriminator Network
             summary, d_loss, _ = sess.run([all_summary, model.d_loss, d_optimizer])
             writer.add_summary(summary, global_step)
-            print "Epoch [%d] Step [%d] C Loss: [%.4f] D Loss: [%.4f]" % (epoch, step, d_loss)            
+            print "Epoch [%d] Step [%d] C Loss: [%.4f] D Loss: [%.4f]" % (epoch, step, g_loss, d_loss)            
         
 
         # Check Test image results every time epoch is finished

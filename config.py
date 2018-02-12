@@ -29,19 +29,23 @@ parser.add_argument('--data', dest='data', default='../ambientGAN_TF/data', help
 parser.add_argument('--batch_size', dest='batch_size', default=64, help='batch size')
 parser.add_argument('--train_step', dest='train_step', default=100, help='total number of train_step')
 parser.add_argument('--Tc', dest='Tc', default=10, help='Tc to train Completion Network')
-parser.add_argument('--Td', dest='Td', default=2, help='Td to train Discriminator Network')
+parser.add_argument('--Td', dest='Td', default=1, help='Td to train Discriminator Network')
 
 
 parser.add_argument('--learning_rate', dest='learning_rate', default=0.0001, help='learning rate of the optimizer')
 parser.add_argument('--momentum', dest='momentum', default=0.5, help='momentum of the optimizer')
-parser.add_argument('--alpha', dest='alpha', default=0.0004, help='alpha')
+parser.add_argument('--alpha', dest='alpha', default=1.0, help='alpha')
 
-#Measurement model setting
 parser.add_argument('--margin', dest='margin', default=5, help='margin')
 
+#Test image
+parser.add_argument('--img_path', dest='img_path', default='', help='test image path')
 
 #Extra folders setting
 parser.add_argument('--checkpoints_path', dest='checkpoints_path', default='./checkpoints/', help='saved model checkpoint path')
 parser.add_argument('--graph_path', dest='graph_path', default='./graphs/', help='tensorboard graph')
 parser.add_argument('--images_path', dest='images_path', default='./images/', help='result images path')
+
+
+
 args = parser.parse_args()
