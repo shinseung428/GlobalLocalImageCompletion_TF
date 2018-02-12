@@ -91,7 +91,7 @@ class network():
         self.real_d_loss = calc_loss(self.real_loss, 1)
 
         #loss to train discriminator
-        self.d_loss = self.fake_d_loss + self.real_d_loss
+        self.d_loss = self.alpha*(self.fake_d_loss + self.real_d_loss)
 
         self.g_loss = calc_loss(self.fake_loss, 1)
         
