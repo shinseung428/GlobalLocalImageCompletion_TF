@@ -42,14 +42,13 @@ def conv2d(input, out_filter, padding, kernel=5, stride=2, name="conv2d"):
 
 def deconv2d(input, out_shape, name="deconv2d"):
 	input_shape = input.get_shape().as_list()
-	print input_shape
 	with tf.variable_scope(name) as scope:
 		w = tf.get_variable("w", [4, 4, out_shape[-1], input_shape[-1]], initializer=tf.random_normal_initializer(stddev=0.02))
 		b = tf.get_variable("b", [out_shape[-1]], initializer=tf.constant_initializer(0.0))
 		deconv = tf.nn.conv2d_transpose(input, w, 
 										output_shape=out_shape,
 										strides=[1, 2, 2, 1],
-										padding="VALID")
+										padding="SAME")
 		deconv = tf.reshape(tf.nn.bias_add(deconv, b), deconv.get_shape())
 
 		return deconv

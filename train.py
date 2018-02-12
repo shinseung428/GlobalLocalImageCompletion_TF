@@ -8,7 +8,7 @@ def train(args, sess, model):
     d_optimizer = tf.train.AdamOptimizer(args.learning_rate, beta1=args.momentum, name="AdamOptimizer_D").minimize(model.d_loss, var_list=model.d_vars)
     c_optimizer = tf.train.AdamOptimizer(args.learning_rate, beta1=args.momentum, name="AdamOptimizer_C").minimize(model.recon_loss, var_list=model.c_vars)
     
-    global_optimizer = tf.train.AdamOptimizer(args.learning_rate, beta1=args.momentum, name="AdamOptimizer_C").minimize(model.loss, var_list=model.c_vars + model.d_vars)
+    global_optimizer = tf.train.AdamOptimizer(args.learning_rate, beta1=args.momentum, name="AdamOptimizer_C").minimize(model.loss_all, var_list=model.c_vars)
 
     epoch = 0
     step = 0
@@ -28,6 +28,7 @@ def train(args, sess, model):
         tf.local_variables_initializer().run()
 
 
+
     coord = tf.train.Coordinator()
     threads = tf.train.start_queue_runners(sess=sess, coord=coord)
 
@@ -45,27 +46,34 @@ def train(args, sess, model):
     #training starts here
 
     #first train completion network
-    while epoch < args.epochs:
-        #Update Completion Network
-        summary, g_loss, _ = sess.run([all_summary, model.recon_loss, c_optimizer])
-        writer.add_summary(summary, global_step)
+    while epoch < args.train_step:
 
-        #Update Discriminator Networks
-        # summary, d_loss, _ = sess.run([all_summary, model.d_loss, d_optimizer])
-        # writer.add_summary(summary, global_step)
+        if epoch < args.Tc:
+            #Update Completion Network
+            summary, c_loss, _ = sess.run([all_summary, model.recon_loss, c_optimizer])
+            writer.add_summary(summary, global_step)
+            print "Epoch [%d] Step [%d] C Loss: [%.4f]" % (epoch, step, c_loss)
+        elif epoch < args.Tc + args.Td:
+            #Update Discriminator Networks
+            summary, d_loss, _ = sess.run([all_summary, model.d_loss, d_optimizer])
+            writer.add_summary(summary, global_step)
+            print "Epoch [%d] Step [%d] D Loss: [%.4f]" % (epoch, step, d_loss)
+        else:
+            # Update All Networks
+            # Update Completion Network
+            summary, g_loss, _ = sess.run([all_summary, model.loss_all, global_optimizer])
+            writer.add_summary(summary, global_step)
 
-
-        # #Update All Networks
-        # summary, g_loss, _ = sess.run([all_summary, model.loss, global_optimizer])
-        # writer.add_summary(summary, global_step)       
-
-
-        print "Epoch [%d] Step [%d] G Loss: [%.4f] D Loss: [%.4f]" % (epoch, step, g_loss, d_loss)
+            # Update Discriminator Network
+            summary, d_loss, _ = sess.run([all_summary, model.d_loss, d_optimizer])
+            writer.add_summary(summary, global_step)
+            print "Epoch [%d] Step [%d] C Loss: [%.4f] D Loss: [%.4f]" % (epoch, step, d_loss)            
+        
 
         if step*args.batch_size >= model.data_count:
             saver.save(sess, args.checkpoints_path + "/model", global_step=epoch)
 
-            res_img = sess.run(model.X_g, feed_dict={model.z:batch_z})
+            res_img = sess.run(model.test_res_imgs)
 
             img_tile(epoch, args, res_img)
             step = 0
@@ -73,7 +81,6 @@ def train(args, sess, model):
 
         step += 1
         global_step += 1
-
 
 
     coord.request_stop()
@@ -85,7 +92,15 @@ def train(args, sess, model):
 def main(_):
     run_config = tf.ConfigProto()
     run_config.gpu_options.allow_growth = True
-    
+
+    #create graph, images, and checkpoints folder if they don't exist
+    if not os.path.exists(args.checkpoints_path):
+        os.makedirs(args.checkpoints_path)
+    if not os.path.exists(args.graph_path):
+        os.makedirs(args.graph_path)
+    if not os.path.exists(args.images_path):
+        os.makedirs(args.images_path)
+
     with tf.Session(config=run_config) as sess:
         model = network(args)
 
