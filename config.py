@@ -27,7 +27,7 @@ parser.add_argument('--continue_training', dest='continue_training', default=Fal
 parser.add_argument('--data', dest='data', default='../ambientGAN_TF/data', help='cats image train path')
 
 parser.add_argument('--batch_size', dest='batch_size', default=64, help='batch size')
-parser.add_argument('--train_step', dest='train_step', default=500, help='total number of train_step')
+parser.add_argument('--train_step', dest='train_step', default=400, help='total number of train_step')
 parser.add_argument('--Tc', dest='Tc', default=100, help='Tc to train Completion Network')
 parser.add_argument('--Td', dest='Td', default=1, help='Td to train Discriminator Network')
 
