@@ -33,8 +33,9 @@ def train(args, sess, model):
     threads = tf.train.start_queue_runners(sess=sess, coord=coord)
 
     #summary init
-    all_summary = tf.summary.merge([model.d_loss_sum,
-                                    model.g_loss_sum,
+    all_summary = tf.summary.merge([model.recon_loss_sum,
+                                    model.d_loss_sum,
+                                    model.loss_all_sum,
                                     model.input_img_sum, 
                                     model.real_img_sum,
                                     model.recon_img_sum,
@@ -48,33 +49,36 @@ def train(args, sess, model):
     #first train completion network
     while epoch < args.train_step:
 
+        #Training Stage 1 (Completion Network)
         if epoch < args.Tc:
-            #Update Completion Network
             summary, c_loss, _ = sess.run([all_summary, model.recon_loss, c_optimizer])
             writer.add_summary(summary, global_step)
             print "Epoch [%d] Step [%d] C Loss: [%.4f]" % (epoch, step, c_loss)
         elif epoch < args.Tc + args.Td:
-            #Update Discriminator Networks
+            #Training Stage 2 (Discriminator Network)
             summary, d_loss, _ = sess.run([all_summary, model.d_loss, d_optimizer])
             writer.add_summary(summary, global_step)
             print "Epoch [%d] Step [%d] D Loss: [%.4f]" % (epoch, step, d_loss)
         else:
-            # Update All Networks
-            # Update Completion Network
+            #Training Stage 3 (All Networks)
+
+            # Completion Network
             summary, g_loss, _ = sess.run([all_summary, model.loss_all, global_optimizer])
             writer.add_summary(summary, global_step)
 
-            # Update Discriminator Network
+            # Discriminator Network
             summary, d_loss, _ = sess.run([all_summary, model.d_loss, d_optimizer])
             writer.add_summary(summary, global_step)
             print "Epoch [%d] Step [%d] C Loss: [%.4f] D Loss: [%.4f]" % (epoch, step, d_loss)            
         
 
+        # Check Test image results every time epoch is finished
         if step*args.batch_size >= model.data_count:
             saver.save(sess, args.checkpoints_path + "/model", global_step=epoch)
 
             res_img = sess.run(model.test_res_imgs)
 
+            # save test img result
             img_tile(epoch, args, res_img)
             step = 0
             epoch += 1 

@@ -10,10 +10,11 @@ def test(args, sess, model):
     ckpt_name = str(last_ckpt)
     print "Loaded model file from " + ckpt_name
 
-    batch_z = np.random.uniform(-1, 1, size=(args.batch_size , args.input_dim))
-    res_img = sess.run(model.X_g, feed_dict={model.z:batch_z})
 
-    img_tile(999, args, res_img)
+    
+    res_img = sess.run(model.test_res_imgs)
+
+    cv2.imshow("result", res_img)
 
     print("Done.")
 

@@ -24,8 +24,9 @@ class network():
         self.build_loss()
 
         #summary
+        self.recon_loss_sum = tf.summary.scalar("recon_loss", self.recon_loss) 
         self.d_loss_sum = tf.summary.scalar("d_loss", self.d_loss) 
-        self.g_loss_sum = tf.summary.scalar("g_loss", self.g_loss)
+        self.loss_all_sum = tf.summary.scalar("loss_all", self.loss_all)
         self.input_img_sum = tf.summary.image("input_img", self.perturbed_img, max_outputs=5)
         self.real_img_sum = tf.summary.image("real_img", self.real_img, max_outputs=5)
         
@@ -90,11 +91,11 @@ class network():
         self.real_d_loss = calc_loss(self.real_loss, 1)
 
         #loss to train discriminator
-        self.d_loss = self.alpha*(self.fake_d_loss + self.real_d_loss)
+        self.d_loss = self.fake_d_loss + self.real_d_loss
 
         self.g_loss = calc_loss(self.fake_loss, 1)
         
-        #equation 2 in the paper
+        #mse equation 2 in the paper
         self.recon_loss = tf.reduce_mean(tf.nn.l2_loss(self.real_img - self.recon_img))
         
         self.loss_all = self.recon_loss + self.alpha*self.g_loss
