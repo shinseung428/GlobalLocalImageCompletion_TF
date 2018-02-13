@@ -42,9 +42,10 @@ def erase_img(args, img):
     
 
     while(1):
-        cv2.imshow('image',img)
+        img_show = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
+        cv2.imshow('image',img_show)
         k = cv2.waitKey(1) & 0xFF
-        if k == 27:
+        if k == 10:
             break
 
     test_img = cv2.resize(img, (args.input_height, args.input_width))/127.5 - 1
@@ -67,24 +68,27 @@ def test(args, sess, model):
     print "Loaded model file from " + ckpt_name
     
     img = cv2.imread(args.img_path)
-
+    img = cv2.cvtColor(img, cv2.COLOR_RGB2BGR)
     orig_test = cv2.resize(img, (args.input_height, args.input_width))/127.5 - 1
     orig_test = np.tile(orig_test[np.newaxis,...],[args.batch_size,1,1,1])
+    orig_test = orig_test.astype(np.float32)
 
     orig_w, orig_h = img.shape[0], img.shape[1]
     test_img, mask = erase_img(args, img)
-
+    test_img = test_img.astype(np.float32)
+    
     print "Testing ..."
     res_img = sess.run(model.test_res_imgs, feed_dict={model.single_orig:orig_test,
                                                        model.single_test:test_img,
                                                        model.single_mask:mask})
 
     orig = cv2.resize((orig_test[0]+1)/2, (orig_h, orig_w))
-    res = cv2.resize((res_img[0]+1)/2, (orig_h, orig_w))
+    test = cv2.resize((test_img[0]+1)/2, (orig_h, orig_w))
+    recon = cv2.resize((res_img[0]+1)/2, (orig_h, orig_w))
 
-    #res = cv2.cvtColor(res, cv2.COLOR_RGB2BGR)
+    res = np.hstack([orig,test,recon])
+    res = cv2.cvtColor(res, cv2.COLOR_BGR2RGB)
 
-    cv2.imshow("orig", orig)
     cv2.imshow("result", res)
     cv2.waitKey()
 

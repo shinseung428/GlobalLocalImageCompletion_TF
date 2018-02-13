@@ -17,12 +17,12 @@ def train(args, sess, model):
     #saver
     saver = tf.train.Saver()        
     if args.continue_training:
+        tf.local_variables_initializer().run()
         last_ckpt = tf.train.latest_checkpoint(args.checkpoints_path)
         saver.restore(sess, last_ckpt)
         ckpt_name = str(last_ckpt)
         print "Loaded model file from " + ckpt_name
         epoch = int(ckpt_name.split('-')[-1])
-        tf.local_variables_initializer().run()
     else:
         tf.global_variables_initializer().run()
         tf.local_variables_initializer().run()
@@ -70,10 +70,10 @@ def train(args, sess, model):
         if step*args.batch_size >= model.data_count:
             saver.save(sess, args.checkpoints_path + "/model", global_step=epoch)
 
-            res_img = sess.run(model.test_res_imgs)
+            #res_img = sess.run(model.test_res_imgs)
 
             # save test img result
-            img_tile(epoch, args, res_img)
+            #img_tile(epoch, args, res_img)
             step = 0
             epoch += 1 
 

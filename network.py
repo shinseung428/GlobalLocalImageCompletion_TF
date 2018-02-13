@@ -19,7 +19,7 @@ class network():
         #prepare training data
         self.real_img, self.perturbed_img, self.mask, self.coord, self.pads, self.data_count = load_train_data(args)
         self.orig_img, self.test_img, self.test_mask, self.test_data_count = load_test_data(args)
-
+        
         self.single_orig = tf.placeholder(tf.float32, (args.batch_size, args.input_height, args.input_width, 3))
         self.single_test = tf.placeholder(tf.float32, (args.batch_size, args.input_height, args.input_width, 3))
         self.single_mask = tf.placeholder(tf.float32, (args.batch_size, args.input_height, args.input_width, 3))
