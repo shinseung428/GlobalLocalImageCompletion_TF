@@ -34,7 +34,7 @@ $ python train.py --continue_training=True
 $ python test.py --img_path=./data/test/test_img.jpg
 ```
 
-
+![Alt text](images/res.gif?raw=true "result")
 Use your mouse to erase pixels in the image.  
 When you're done press ENTER.  
 Result will be shown in few seconds.  
