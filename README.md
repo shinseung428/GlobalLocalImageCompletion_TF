@@ -7,6 +7,7 @@ Tensorflow implementation of Globally and Locally Consistent Image Completion on
 * smaller image input size (64x64)  
 * smaller patch sizes  
 * less number of training iteration (500,000 iterations in the paper)
+* Adam optimizer used instead of Adadelta
 
 ## Requirements
 * Opencv 2.4

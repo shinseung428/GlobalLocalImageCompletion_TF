@@ -4,7 +4,7 @@ from network import *
 
 
 def train(args, sess, model):
-    #optimizers
+    #Adam optimizers are used instead of AdaDelta
     d_optimizer = tf.train.AdamOptimizer(args.learning_rate, beta1=args.momentum, name="AdamOptimizer_D").minimize(model.d_loss, var_list=model.d_vars)
     c_optimizer = tf.train.AdamOptimizer(args.learning_rate, beta1=args.momentum, name="AdamOptimizer_C").minimize(model.recon_loss, var_list=model.c_vars)
     

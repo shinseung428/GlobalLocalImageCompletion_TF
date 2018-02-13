@@ -34,6 +34,8 @@ parser.add_argument('--Td', dest='Td', default=1, help='Td to train Discriminato
 
 parser.add_argument('--learning_rate', dest='learning_rate', default=0.001, help='learning rate of the optimizer')
 parser.add_argument('--momentum', dest='momentum', default=0.5, help='momentum of the optimizer')
+
+#I set alpha to 1 to give more weights to the discriminator loss
 parser.add_argument('--alpha', dest='alpha', default=1.0, help='alpha')
 
 parser.add_argument('--margin', dest='margin', default=5, help='margin')
