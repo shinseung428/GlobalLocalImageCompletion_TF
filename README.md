@@ -44,10 +44,4 @@ Result will be shown in few seconds.
 
 
 ## Results  
-
-<img src="images/res1.JPG" width="400"/>  
-<img src="images/res2.JPG" width="400"/>  
-<img src="images/res3.JPG" width="400"/>  
-<img src="images/res4.JPG" width="400"/>  
-<img src="images/res5.JPG" width="400"/>  
-<img src="images/res6.JPG" width="400"/>  
+![Alt text](images/res.png?raw=true "result")
