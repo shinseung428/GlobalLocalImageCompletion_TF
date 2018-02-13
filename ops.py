@@ -59,8 +59,6 @@ def load_train_data(args):
 	return orig_imgs, perturbed_imgs, mask, coord, pad_size, data_count
 
 def load_test_data(args):
-	# paths = os.path.join(args.data, "test/*.jpg")
-	# data_count = len(glob(paths))
 	paths = glob("./data/test/*.jpg")
 	data_count = len(paths)
 
@@ -72,7 +70,7 @@ def load_test_data(args):
 	
 
 	#input image range from -1 to 1
-	#center crop 32x32 since raw images are not center cropped.
+	# uncomment to center crop 
 	# images = tf.image.central_crop(images, 0.5)
 	images = tf.image.resize_images(images ,[args.input_height, args.input_width])
 	images = tf.image.convert_image_dtype(images, dtype=tf.float32) / 127.5 - 1
@@ -94,44 +92,44 @@ def load_test_data(args):
 	return orig_imgs, test_imgs, mask, data_count
 
 
-#function to save images in tile
-#comment this function block if you don't have opencv
-def img_tile(epoch, args, imgs, aspect_ratio=1.0, tile_shape=None, border=1, border_color=0):
-	if imgs.ndim != 3 and imgs.ndim != 4:
-		raise ValueError('imgs has wrong number of dimensions.')
-	n_imgs = imgs.shape[0]
+# #function to save images in tile
+# #comment this function block if you don't have opencv
+# def img_tile(epoch, args, imgs, aspect_ratio=1.0, tile_shape=None, border=1, border_color=0):
+# 	if imgs.ndim != 3 and imgs.ndim != 4:
+# 		raise ValueError('imgs has wrong number of dimensions.')
+# 	n_imgs = imgs.shape[0]
 
-	tile_shape = None
-	# Grid shape
-	img_shape = np.array(imgs.shape[1:3])
-	if tile_shape is None:
-		img_aspect_ratio = img_shape[1] / float(img_shape[0])
-		aspect_ratio *= img_aspect_ratio
-		tile_height = int(np.ceil(np.sqrt(n_imgs * aspect_ratio)))
-		tile_width = int(np.ceil(np.sqrt(n_imgs / aspect_ratio)))
-		grid_shape = np.array((tile_height, tile_width))
-	else:
-		assert len(tile_shape) == 2
-		grid_shape = np.array(tile_shape)
+# 	tile_shape = None
+# 	# Grid shape
+# 	img_shape = np.array(imgs.shape[1:3])
+# 	if tile_shape is None:
+# 		img_aspect_ratio = img_shape[1] / float(img_shape[0])
+# 		aspect_ratio *= img_aspect_ratio
+# 		tile_height = int(np.ceil(np.sqrt(n_imgs * aspect_ratio)))
+# 		tile_width = int(np.ceil(np.sqrt(n_imgs / aspect_ratio)))
+# 		grid_shape = np.array((tile_height, tile_width))
+# 	else:
+# 		assert len(tile_shape) == 2
+# 		grid_shape = np.array(tile_shape)
 
-	# Tile image shape
-	tile_img_shape = np.array(imgs.shape[1:])
-	tile_img_shape[:2] = (img_shape[:2] + border) * grid_shape[:2] - border
+# 	# Tile image shape
+# 	tile_img_shape = np.array(imgs.shape[1:])
+# 	tile_img_shape[:2] = (img_shape[:2] + border) * grid_shape[:2] - border
 
-	# Assemble tile image
-	tile_img = np.empty(tile_img_shape)
-	tile_img[:] = border_color
-	for i in range(grid_shape[0]):
-		for j in range(grid_shape[1]):
-			img_idx = j + i*grid_shape[1]
-			if img_idx >= n_imgs:
-				# No more images - stop filling out the grid.
-				break
-			img = imgs[img_idx]
-			img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
+# 	# Assemble tile image
+# 	tile_img = np.empty(tile_img_shape)
+# 	tile_img[:] = border_color
+# 	for i in range(grid_shape[0]):
+# 		for j in range(grid_shape[1]):
+# 			img_idx = j + i*grid_shape[1]
+# 			if img_idx >= n_imgs:
+# 				# No more images - stop filling out the grid.
+# 				break
+# 			img = imgs[img_idx]
+# 			img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
 
-			yoff = (img_shape[0] + border) * i
-			xoff = (img_shape[1] + border) * j
-			tile_img[yoff:yoff+img_shape[0], xoff:xoff+img_shape[1], ...] = img
+# 			yoff = (img_shape[0] + border) * i
+# 			xoff = (img_shape[1] + border) * j
+# 			tile_img[yoff:yoff+img_shape[0], xoff:xoff+img_shape[1], ...] = img
 
-	cv2.imwrite(args.images_path+"/img_"+str(epoch) + ".jpg", (tile_img + 1)*127.5)
+# 	cv2.imwrite(args.images_path+"/img_"+str(epoch) + ".jpg", (tile_img + 1)*127.5)

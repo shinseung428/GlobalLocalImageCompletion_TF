@@ -71,7 +71,7 @@ def train(args, sess, model):
             saver.save(sess, args.checkpoints_path + "/model", global_step=epoch)
 
             #res_img = sess.run(model.test_res_imgs)
-
+            
             # save test img result
             #img_tile(epoch, args, res_img)
             step = 0

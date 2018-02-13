@@ -18,7 +18,7 @@ class network():
 
         #prepare training data
         self.real_img, self.perturbed_img, self.mask, self.coord, self.pads, self.data_count = load_train_data(args)
-        self.orig_img, self.test_img, self.test_mask, self.test_data_count = load_test_data(args)
+        # self.orig_img, self.test_img, self.test_mask, self.test_data_count = load_test_data(args)
         
         self.single_orig = tf.placeholder(tf.float32, (args.batch_size, args.input_height, args.input_width, 3))
         self.single_test = tf.placeholder(tf.float32, (args.batch_size, args.input_height, args.input_width, 3))
@@ -53,8 +53,7 @@ class network():
         for idx in range(0,self.real_img.shape[0]):
             self.r_local_imgs.append(tf.image.resize_images(tf.image.crop_to_bounding_box(self.real_img[idx], self.coord[idx,0]-self.m, self.coord[idx,1]-self.m, self.pads[idx,0]+self.m*2, self.pads[idx,1]+self.m*2), (self.local_height, self.local_width)))
             self.g_local_imgs.append(tf.image.resize_images(tf.image.crop_to_bounding_box(self.recon_img[idx], self.coord[idx,0]-self.m, self.coord[idx,1]-self.m, self.pads[idx,0]+self.m*2, self.pads[idx,1]+self.m*2), (self.local_height, self.local_width)))
-            # self.r_local_imgs.append(self.real_img[idx])
-            # self.g_local_imgs.append(self.recon_img[idx])
+
 
         self.r_local_imgs = tf.convert_to_tensor(self.r_local_imgs)
         self.g_local_imgs = tf.convert_to_tensor(self.g_local_imgs)
@@ -94,12 +93,12 @@ class network():
         self.fake_d_loss = calc_loss(self.fake_loss, 0)
         self.real_d_loss = calc_loss(self.real_loss, 1)
 
-        #loss to train discriminator
+        #loss to train the discriminator
         self.d_loss = self.alpha*(self.fake_d_loss + self.real_d_loss)
 
         self.g_loss = calc_loss(self.fake_loss, 1)
         
-        #mse equation 2 in the paper
+        #mse loss in the paper
         self.recon_loss = tf.reduce_mean(tf.nn.l2_loss(self.real_img - self.recon_img))
         
         self.loss_all = self.recon_loss + self.alpha*self.g_loss

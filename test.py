@@ -82,9 +82,9 @@ def test(args, sess, model):
                                                        model.single_test:test_img,
                                                        model.single_mask:mask})
 
-    orig = cv2.resize((orig_test[0]+1)/2, (orig_h, orig_w))
-    test = cv2.resize((test_img[0]+1)/2, (orig_h, orig_w))
-    recon = cv2.resize((res_img[0]+1)/2, (orig_h, orig_w))
+    orig = cv2.resize((orig_test[0]+1)/2, (orig_h/2, orig_w/2))
+    test = cv2.resize((test_img[0]+1)/2, (orig_h/2, orig_w/2))
+    recon = cv2.resize((res_img[0]+1)/2, (orig_h/2, orig_w/2))
 
     res = np.hstack([orig,test,recon])
     res = cv2.cvtColor(res, cv2.COLOR_BGR2RGB)
@@ -106,5 +106,3 @@ def main(_):
         test(args, sess, model)
 
 main(args)
-
-#Still Working....
