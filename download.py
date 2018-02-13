@@ -36,8 +36,8 @@ if __name__ == "__main__":
     if not os.path.exists("./checkpoints/"):
         os.makedirs("./checkpoints/")
 
-    file_ids = ['1KL5079tA_5CVizekbNDINVFXB9LMvl4Y', '1ciuCxtOeUqBzDaqkitKKX9xdlmO0oEOI','1Fk27xukl6ts8bBntEmpASl6KvkOZzTYm','1KX_2sQ4Ryogv6SAn4NimSTI9MsBg5nUX']
-    destinations = ['checkpoint', 'model-81.data-00000-of-00001','model-81.index','model-81.meta']
+    file_ids = ['1PGsorKfp53AQ6o95c6QUJZN9yfgwEMP2', '1_6WaZqmKBZEHVuXLQUG5NOuO1xOVPkDH','1yDFG3FcLQJx9hekP4GJYh0Ei5Kx6qPVE','1if19OvAhLEVYCqcO5hhw_kQHDzJG7Z2r']
+    destinations = ['checkpoint', 'model-83.data-00000-of-00001','model-83.index','model-83.meta']
     for idx, file_id in enumerate(file_ids):
         print "Downloading " + destinations[idx]
         download_file_from_google_drive(file_id, os.path.join("./checkpoints/",destinations[idx]))            
