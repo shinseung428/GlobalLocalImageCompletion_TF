@@ -33,11 +33,16 @@ $ python train.py --continue_training=True
 ```
 
 ## Test  
+Download pretrained weights  
+```
+$ python download.py
+```
+
 ```
 $ python test.py --img_path=./data/test/test_img.jpg
 ```
 
-<img src="images/res.gif" width="400"/>  
+![Alt text](images/res.gif?raw=true "result gif")
 Use your mouse to erase pixels in the image.  
 When you're done, press ENTER.  
 Result will be shown in few seconds.  
