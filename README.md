@@ -1,6 +1,6 @@
 # Globally and Locally Consistent Image Completion
 
-Tensorflow implementation of Globally and Locally Consistent Image Completion on CelebA dataset.  
+Tensorflow implementation of Globally and Locally Consistent Image Completion on [celebA](http://mmlab.ie.cuhk.edu.hk/projects/CelebA.html) dataset.  
 ![Alt text](images/network.JPG?raw=true "network")
 
 ## What's different from the paper  
@@ -8,9 +8,6 @@ Tensorflow implementation of Globally and Locally Consistent Image Completion on
 * smaller patch sizes  
 * less number of training iteration (500,000 iterations in the paper)
 
-
-## Data
-* [celebA](http://mmlab.ie.cuhk.edu.hk/projects/CelebA.html)  
 
 ## Folder Setting
 ```
