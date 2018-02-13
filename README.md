@@ -1,9 +1,7 @@
 # Globally and Locally Consistent Image Completion
 
 Tensorflow implementation of Globally and Locally Consistent Image Completion on CelebA dataset.  
-<p align="center">
-<img src="images/network.JPG" width="700"/>  
-</p>
+![Alt text](images/network.JPG?raw=true "network")
 
 ## What's different from the paper  
 * smaller image input size (64x64)  
