@@ -40,6 +40,10 @@ class network():
 
     #structure of the model
     def build_model(self):
+        def rand_crop(img, coord, pads):
+          cropped = tf.image.resize_images(tf.image.crop_to_bounding_box(img, coord[0]-self.m, coord[1]-self.m, pads[0]+self.m*2, pads[1]+self.m*2), (self.local_height, self.local_width))
+          return cropped
+
         # self.C = tf.concat([self.perturbed_img, self.mask], -1)
 
         self.recon_img, self.g_nets = self.completion_net(self.perturbed_img, name="completion_net")
@@ -51,8 +55,10 @@ class network():
         self.r_local_imgs = []
         self.g_local_imgs = [] 
         for idx in range(0,self.real_img.shape[0]):
-            self.r_local_imgs.append(tf.image.resize_images(tf.image.crop_to_bounding_box(self.real_img[idx], self.coord[idx,0]-self.m, self.coord[idx,1]-self.m, self.pads[idx,0]+self.m*2, self.pads[idx,1]+self.m*2), (self.local_height, self.local_width)))
-            self.g_local_imgs.append(tf.image.resize_images(tf.image.crop_to_bounding_box(self.recon_img[idx], self.coord[idx,0]-self.m, self.coord[idx,1]-self.m, self.pads[idx,0]+self.m*2, self.pads[idx,1]+self.m*2), (self.local_height, self.local_width)))
+            r_cropped = rand_crop(self.real_img[idx], self.coord[idx], self.pads[idx])
+            g_cropped = rand_crop(self.recon_img[idx], self.coord[idx], self.pads[idx])
+            self.r_local_imgs.append(r_cropped)
+            self.g_local_imgs.append(g_cropped)
 
 
         self.r_local_imgs = tf.convert_to_tensor(self.r_local_imgs)
