@@ -44,7 +44,8 @@ class network():
           cropped = tf.image.resize_images(tf.image.crop_to_bounding_box(img, coord[0]-self.m, coord[1]-self.m, pads[0]+self.m*2, pads[1]+self.m*2), (self.local_height, self.local_width))
           return cropped
 
-        # self.C = tf.concat([self.perturbed_img, self.mask], -1)
+        # uncomment to concatenate mask and masked input image
+        # self.perturbed_img = tf.concat([self.perturbed_img, self.mask], -1)
 
         self.recon_img, self.g_nets = self.completion_net(self.perturbed_img, name="completion_net")
         self.recon_img = (1-self.mask)*self.real_img + self.mask*self.recon_img
