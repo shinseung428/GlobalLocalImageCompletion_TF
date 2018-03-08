@@ -74,7 +74,7 @@ class network():
         self.global_real_d_logits, self.global_real_d_net = self.global_discriminator(self.real_img, name="global_discriminator", reuse=True)
 
         self.fake_d_logits = tf.concat([self.local_fake_d_logits, self.global_fake_d_logits], axis=1)
-        self.real_d_logits = tf.concat([self.local_fake_d_logits, self.global_fake_d_logits], axis=1)
+        self.real_d_logits = tf.concat([self.local_real_d_logits, self.global_real_d_logits], axis=1)
 
         self.fake_loss = linear(self.fake_d_logits, 1, "fake_loss")
         self.real_loss = linear(self.real_d_logits, 1, "real_loss")

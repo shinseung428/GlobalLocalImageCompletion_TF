@@ -4,6 +4,8 @@ import os
 import tensorflow as tf
 import numpy as np
 import cv2 
+
+
 def block_patch(input, margin=5):
 	shape = input.get_shape().as_list()
 	
