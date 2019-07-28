@@ -34,10 +34,7 @@ $ python train.py --continue_training=True
 ```
 
 ## Test  
-Download pretrained weights  
-```
-$ python download.py
-```
+~Download pretrained weights~ (depreciated)  
 
 ```
 $ python test.py --img_path=./data/test/test_img.jpg
