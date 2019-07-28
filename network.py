@@ -321,7 +321,7 @@ class network():
                                      padding="VALID",
                                      activation_fn=None,
                                      scope="conv3")
-            conv3 = batch_norm(conv1, name="bn3")
+            conv3 = batch_norm(conv3, name="bn3")
             conv3 = tf.nn.relu(conv3)
             nets.append(conv3)
 
