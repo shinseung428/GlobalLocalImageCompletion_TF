@@ -4,7 +4,7 @@ Tensorflow implementation of Globally and Locally Consistent Image Completion on
 ![Alt text](images/network.JPG?raw=true "network")
 
 ## What's different from the paper  
-* smaller image input size (64x64)  
+* smaller image input size (128x128)  
 * smaller patch sizes  
 * less number of training iteration (500,000 iterations in the paper)
 * Adam optimizer used instead of Adadelta
