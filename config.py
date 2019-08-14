@@ -13,8 +13,8 @@ def str2bool(v):
 parser = argparse.ArgumentParser(description='')
 
 #Image setting
-parser.add_argument('--input_width', dest='input_width', default=64, help='input image width')
-parser.add_argument('--input_height', dest='input_height', default=64, help='input image height')
+parser.add_argument('--input_width', dest='input_width', default=128, help='input image width')
+parser.add_argument('--input_height', dest='input_height', default=128, help='input image height')
 parser.add_argument('--local_input_width', dest='local_input_width', default=32, help='local input image width')
 parser.add_argument('--local_input_height', dest='local_input_height', default=32, help='localinput image height')
 parser.add_argument('--input_channel', dest='input_channel', default=3, help='input image channel')
