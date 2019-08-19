@@ -8,7 +8,7 @@ class network():
     def __init__(self, args):
 
         self.batch_size = args.batch_size
-        self.input_dim = args.input_dim 
+        self.input_dim = args.input_dim
 
         self.local_width, self.local_height = args.local_input_width, args.local_input_height
 
@@ -19,7 +19,7 @@ class network():
         #prepare training data
         self.real_img, self.perturbed_img, self.mask, self.coord, self.pads, self.data_count = load_train_data(args)
         # self.orig_img, self.test_img, self.test_mask, self.test_data_count = load_test_data(args)
-        
+
         self.single_orig = tf.placeholder(tf.float32, (args.batch_size, args.input_height, args.input_width, 3))
         self.single_test = tf.placeholder(tf.float32, (args.batch_size, args.input_height, args.input_width, 3))
         self.single_mask = tf.placeholder(tf.float32, (args.batch_size, args.input_height, args.input_width, 3))
@@ -28,12 +28,12 @@ class network():
         self.build_loss()
 
         #summary
-        self.recon_loss_sum = tf.summary.scalar("recon_loss", self.recon_loss) 
-        self.d_loss_sum = tf.summary.scalar("d_loss", self.d_loss) 
+        self.recon_loss_sum = tf.summary.scalar("recon_loss", self.recon_loss)
+        self.d_loss_sum = tf.summary.scalar("d_loss", self.d_loss)
         self.loss_all_sum = tf.summary.scalar("loss_all", self.loss_all)
         self.input_img_sum = tf.summary.image("input_img", self.perturbed_img, max_outputs=5)
         self.real_img_sum = tf.summary.image("real_img", self.real_img, max_outputs=5)
-        
+
         self.recon_img_sum = tf.summary.image("recon_img", self.recon_img, max_outputs=5)
         self.g_local_imgs_sum = tf.summary.image("g_local_imgs", self.g_local_imgs, max_outputs=5)
         self.r_local_imgs_sum = tf.summary.image("r_local_imgs", self.r_local_imgs, max_outputs=5)
@@ -54,7 +54,7 @@ class network():
         self.test_res_imgs = (1-self.single_mask)*self.single_orig + self.single_mask*self.test_res_imgs
 
         self.r_local_imgs = []
-        self.g_local_imgs = [] 
+        self.g_local_imgs = []
         for idx in range(0,self.real_img.shape[0]):
             r_cropped = rand_crop(self.real_img[idx], self.coord[idx], self.pads[idx])
             g_cropped = rand_crop(self.recon_img[idx], self.coord[idx], self.pads[idx])
@@ -64,7 +64,7 @@ class network():
 
         self.r_local_imgs = tf.convert_to_tensor(self.r_local_imgs)
         self.g_local_imgs = tf.convert_to_tensor(self.g_local_imgs)
-        
+
         #global discriminator setting
         self.local_fake_d_logits, self.local_fake_d_net = self.local_discriminator(self.g_local_imgs, name="local_discriminator")
         self.local_real_d_logits, self.local_real_d_net = self.local_discriminator(self.r_local_imgs, name="local_discriminator", reuse=True)
@@ -104,13 +104,13 @@ class network():
         self.d_loss = self.alpha*(self.fake_d_loss + self.real_d_loss)
 
         self.g_loss = calc_loss(self.fake_loss, 1)
-        
+
         #mse loss in the paper
-        self.recon_loss = tf.reduce_mean(tf.nn.l2_loss(self.real_img - self.recon_img))
-        
+        self.recon_loss = tf.reduce_mean(tf.squared_difference(self.real_img, self.recon_img))
+
         self.loss_all = self.recon_loss + self.alpha*self.g_loss
 
-    # completion network 
+    # completion network
     def completion_net(self, input, name="generator", reuse=False):
         input_shape = input.get_shape().as_list()
         nets = []
@@ -123,7 +123,7 @@ class network():
                           )
             conv1 = batch_norm(conv1, name="conv_bn1")
             conv1 = tf.nn.relu(conv1)
-            
+
             conv2 = conv2d(conv1, 128,
                           kernel=3,
                           stride=2,
@@ -170,25 +170,25 @@ class network():
             conv6 = tf.nn.relu(conv5)
 
             #Dilated conv from here
-            dilate_conv1 = dilate_conv2d(conv6, 
+            dilate_conv1 = dilate_conv2d(conv6,
                                         [self.batch_size, conv6.get_shape()[1], conv6.get_shape()[2], 256],
                                         rate=2,
                                         name="dilate_conv1")
 
-            dilate_conv2 = dilate_conv2d(dilate_conv1, 
+            dilate_conv2 = dilate_conv2d(dilate_conv1,
                                         [self.batch_size, dilate_conv1.get_shape()[1], dilate_conv1.get_shape()[2], 256],
                                         rate=4,
                                         name="dilate_conv2")
 
-            dilate_conv3 = dilate_conv2d(dilate_conv2, 
+            dilate_conv3 = dilate_conv2d(dilate_conv2,
                                         [self.batch_size, dilate_conv2.get_shape()[1], dilate_conv2.get_shape()[2], 256],
                                         rate=8,
                                         name="dilate_conv3")
 
-            dilate_conv4 = dilate_conv2d(dilate_conv3, 
+            dilate_conv4 = dilate_conv2d(dilate_conv3,
                                         [self.batch_size, dilate_conv3.get_shape()[1], dilate_conv3.get_shape()[2], 256],
                                         rate=16,
-                                        name="dilate_conv4")                                                                                              
+                                        name="dilate_conv4")
 
             #resize back
             conv7 = conv2d(dilate_conv4, 256,
@@ -209,7 +209,7 @@ class network():
             conv8 = batch_norm(conv8, name="conv_bn8")
             conv8 = tf.nn.relu(conv8)
 
-            deconv1 = deconv2d(conv8, [self.batch_size, input_shape[1]/2, input_shape[2]/2, 128], name="deconv1")
+            deconv1 = deconv2d(conv8, [self.batch_size, input_shape[1]//2, input_shape[2]//2, 128], name="deconv1")
             deconv1 = batch_norm(deconv1, name="deconv_bn1")
             deconv1 = tf.nn.relu(deconv1)
 
@@ -278,7 +278,7 @@ class network():
                                      padding="VALID",
                                      activation_fn=None,
                                      scope="conv4")
-            conv4 = batch_norm(conv4, name="bn4")                                                                                                                           
+            conv4 = batch_norm(conv4, name="bn4")
             conv4 = tf.nn.relu(conv4)
             nets.append(conv4)
 
@@ -286,7 +286,7 @@ class network():
                                      padding="VALID",
                                      activation_fn=None,
                                      scope="conv5")
-            conv5 = batch_norm(conv5, name="bn5")                                                                                                                           
+            conv5 = batch_norm(conv5, name="bn5")
             conv5 = tf.nn.relu(conv5)
             nets.append(conv5)
 
@@ -329,7 +329,7 @@ class network():
                                      padding="VALID",
                                      activation_fn=None,
                                      scope="conv4")
-            conv4 = batch_norm(conv4, name="bn4")                                                                                                                           
+            conv4 = batch_norm(conv4, name="bn4")
             conv4 = tf.nn.relu(conv4)
             nets.append(conv4)
 
@@ -337,7 +337,7 @@ class network():
                                      padding="VALID",
                                      activation_fn=None,
                                      scope="conv5")
-            conv5 = batch_norm(conv5, name="bn5")                                                                                                                           
+            conv5 = batch_norm(conv5, name="bn5")
             conv5 = tf.nn.relu(conv5)
             nets.append(conv5)
 
@@ -345,7 +345,7 @@ class network():
                                      padding="VALID",
                                      activation_fn=None,
                                      scope="conv6")
-            conv6 = batch_norm(conv6, name="bn6")                                                                                                                           
+            conv6 = batch_norm(conv6, name="bn6")
             conv6 = tf.nn.relu(conv6)
             nets.append(conv6)
 

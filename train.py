@@ -7,7 +7,7 @@ def train(args, sess, model):
     #Adam optimizers are used instead of AdaDelta
     d_optimizer = tf.train.AdamOptimizer(args.learning_rate, beta1=args.momentum, name="AdamOptimizer_D").minimize(model.d_loss, var_list=model.d_vars)
     c_optimizer = tf.train.AdamOptimizer(args.learning_rate, beta1=args.momentum, name="AdamOptimizer_C").minimize(model.recon_loss, var_list=model.c_vars)
-    
+
     global_optimizer = tf.train.AdamOptimizer(args.learning_rate, beta1=args.momentum, name="AdamOptimizer_C").minimize(model.loss_all, var_list=model.c_vars)
 
     epoch = 0
@@ -15,18 +15,17 @@ def train(args, sess, model):
     global_step = 0
 
     #saver
-    saver = tf.train.Saver()        
+    saver = tf.train.Saver()
     if args.continue_training:
         tf.local_variables_initializer().run()
         last_ckpt = tf.train.latest_checkpoint(args.checkpoints_path)
         saver.restore(sess, last_ckpt)
         ckpt_name = str(last_ckpt)
-        print "Loaded model file from " + ckpt_name
+        print ("Loaded model file from " + ckpt_name)
         epoch = int(ckpt_name.split('-')[-1])
     else:
         tf.global_variables_initializer().run()
         tf.local_variables_initializer().run()
-
 
 
     coord = tf.train.Coordinator()
@@ -36,7 +35,7 @@ def train(args, sess, model):
     all_summary = tf.summary.merge([model.recon_loss_sum,
                                     model.d_loss_sum,
                                     model.loss_all_sum,
-                                    model.input_img_sum, 
+                                    model.input_img_sum,
                                     model.real_img_sum,
                                     model.recon_img_sum,
                                     model.g_local_imgs_sum,
@@ -45,7 +44,6 @@ def train(args, sess, model):
 
 
     #training starts here
-
     #first train completion network
     while epoch < args.train_step:
 
@@ -53,29 +51,29 @@ def train(args, sess, model):
         if epoch < args.Tc:
             summary, c_loss, _ = sess.run([all_summary, model.recon_loss, c_optimizer])
             writer.add_summary(summary, global_step)
-            print "Epoch [%d] Step [%d] C Loss: [%.4f]" % (epoch, step, c_loss)
+            print ("Epoch [%d] Step [%d] C Loss: [%.4f]" % (epoch, step, c_loss))
         elif epoch < args.Tc + args.Td:
             #Training Stage 2 (Discriminator Network)
             summary, d_loss, _ = sess.run([all_summary, model.d_loss, d_optimizer])
             writer.add_summary(summary, global_step)
-            print "Epoch [%d] Step [%d] D Loss: [%.4f]" % (epoch, step, d_loss)
+            print ("Epoch [%d] Step [%d] D Loss: [%.4f]" % (epoch, step, d_loss))
         else:
             #Training Stage 3 (Completion Network)
             summary, g_loss, _ = sess.run([all_summary, model.loss_all, global_optimizer])
             writer.add_summary(summary, global_step)
-            print "Epoch [%d] Step [%d] C Loss: [%.4f]" % (epoch, step, g_loss)            
-        
+            print ("Epoch [%d] Step [%d] C Loss: [%.4f]" % (epoch, step, g_loss))
+
 
         # Check Test image results every time epoch is finished
         if step*args.batch_size >= model.data_count:
             saver.save(sess, args.checkpoints_path + "/model", global_step=epoch)
 
             #res_img = sess.run(model.test_res_imgs)
-            
-            # save test img result
+
+            ## save test img result
             #img_tile(epoch, args, res_img)
             step = 0
-            epoch += 1 
+            epoch += 1
 
         step += 1
         global_step += 1
@@ -83,7 +81,7 @@ def train(args, sess, model):
 
     coord.request_stop()
     coord.join(threads)
-    sess.close()            
+    sess.close()
     print("Done.")
 
 
@@ -102,7 +100,7 @@ def main(_):
     with tf.Session(config=run_config) as sess:
         model = network(args)
 
-        print 'Start Training...'
+        print ('Start Training...')
         train(args, sess, model)
 
 main(args)
